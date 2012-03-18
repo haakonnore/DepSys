@@ -27,14 +27,17 @@ public class Client {
 		do {
 			if (notGivenIP== true) {
 				try {
-					System.out.println("Not given IP. Trying again in one min.");
-					Thread.sleep(1*60*1000);
+					System.out.println("Not given IP. Trying again in ten seconds.");
+					Thread.sleep(10*1000);
 					System.out.println("Trying");
 				} catch (InterruptedException e) {}
 			}
 			myIpAddress = server.getAddress(name);
 			if (myIpAddress.toString().equals("Address Pool full")) {
 				notGivenIP = true; 
+			}
+			else {
+				notGivenIP = false; 
 			}
 		} while (notGivenIP);
 

@@ -144,6 +144,9 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 		if(!isFull){
 			internalInt.reserveAddress(a);			
 		}
+		if(isFull){
+			checkLease();
+		}
 		IPAddress toReturn = new IPAddress(ipAddressToLease);
 		return toReturn;
 	}
