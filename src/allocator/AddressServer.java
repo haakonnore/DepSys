@@ -35,6 +35,15 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 		proxy.join(groupname);
 		internalInt = (InternalInterface) proxy.getInternalStub(InternalInterface.class);
 		emptyLeasePool();
+		while (true) {
+			try {
+				Thread.sleep(10*1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			this.checkLease();
+		}
 	}
 	
 	private void emptyLeasePool() {
@@ -60,9 +69,11 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 		 * 
 		 */
 		int position = -1;
-		for (int i = 0; i < view.getSize(); i++)
-			if (view.memberHasPosition(i, proxy.getIdentifier()))
-				position = i;
+		for (int i = 0; i < view.getSize(); i++){
+			if (view.memberHasPosition(i, proxy.getIdentifier())){				
+				position = i;			
+			}
+		}
 		if(view.getSize() == 1){
 			startPointer = 0;
 			endPointer = 19;
@@ -79,13 +90,17 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 			}
 		}
 		
-		if (!isEmpty()) {
-			System.out.println("Is Not Empty");
+		if (!isEmpty()&& view.getSize()>1) {
 			for (int i = 0; i < leasePool.length; i++) {
-				System.out.println("has values");
 				internalInt.reserveAddress(getClientObject(i));
 			}
 		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} //sleeping to get a nice print of leases
 		printMyLeases();
 	}
 	
@@ -96,7 +111,7 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 			System.out.print(addressPool[i]);
 			if (leasePool[i]!= null) {
 				System.out.print(" is leased by: " + leasePool[i]);
-				System.out.println(" End of lease at: " + leaseTimeout[i]);
+				System.out.println(" End of lease at systemtime: " + (leaseTimeout[i]));
 			}
 			else {
 				
@@ -111,15 +126,14 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 		return toReturn;
 	}
 	
-	@Anycast public IPAddress getAddress() {
+	@Anycast public IPAddress getAddress(String navn) {
 		String ipAddressToLease = "Address Pool full";
 		ClientObject a = null;
 		boolean isFull = true; 
 		for (int i = startPointer; i < endPointer +1 ; i++) {
 			if (leasePool[i]== null){
 				ipAddressToLease = addressPool[i];
-				leasePool[i] = "Implementer denne";
-				String time = time().toString();
+				leasePool[i] = navn;
 				leaseTimeout[i] = ((Long)time()) + (leaseTimeInMinutes  *1000 * 60);
 				System.out.println("A new lease has been made: " + ipAddressToLease + " " + leasePool[i] + " " + leaseTimeout[i]);
 				a = getClientObject(i);
@@ -136,8 +150,13 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 
 	@Multicast public void refresh(IPAddress ipAddress) {
 		for (int i = 0; i < leasePool.length; i++) {
-			if(leasePool[i].equals(ipAddress))
+			System.out.println("refreshing"); //fjern når funker
+			String tempString = "";
+			if(leasePool != null)
+				tempString = leasePool[i]; //avoid nullpointer
+			if(tempString.equals(ipAddress.toString()))
 				leaseTimeout[i] = ((Long)time()) + (leaseTimeInMinutes  *1000 * 60);
+				break;
 		}
 		printMyLeases();
 		
@@ -150,7 +169,6 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 	}
 	
 @Multicast	public void reserveAddress(ClientObject reservedAddress) {
-		System.out.println("starting reserveing addresses");
 		int i = reservedAddress.getIndexInIPPool();
 		leasePool[i]= reservedAddress.getClientName();
 		leaseTimeout[i] = reservedAddress.getLeaseTimeout();
@@ -162,11 +180,27 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
     }
 	
 	public Object time() {
-        long time = System.currentTimeMillis();
-        System.out.println("Generating time: " + time);        
+        long time = System.currentTimeMillis();       
         return new Long(time);
     }
-
+	
+	private void checkLease() {
+		Long time = ((Long)time());
+		Long timeoutTime;
+		for (int i = startPointer; i < endPointer + 1; i++) {
+			timeoutTime = time*2;
+			if (this.leaseTimeout[i] != null) {
+				timeoutTime = this.leaseTimeout[i];
+			}
+			
+			if (time > timeoutTime) {
+				System.out.println(this.getClientObject(i).getClientName() + " with IP address: " + this.addressPool[i] + " has not renewed his Address before timeout");
+				internalInt.releaseAddress(this.getClientObject(i));
+				
+			}
+		}
+		
+	}
 	
 	public static void main(String[] arg) {
 	       String connName = null;
@@ -195,5 +229,6 @@ public class AddressServer implements MembershipListener, ExternalInterface, Int
 	    	   }
 	       }
 	}
+
 
 }
