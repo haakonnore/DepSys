@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+
+<project name="JaSoS" default="build" basedir=".">
+
+  <description>
+     Build file for the JaSoS package and applications.
+  </description>
+
+  <!-- **************************************************************** -->
+  <!-- Properties                                                       -->
+  <!-- **************************************************************** -->
+
+  <!-- Port number for connecting to the Spread daemon (unique for each group) -->
+  <property name="port" value="4803"/>
+	
+  <!-- Source directory -->
+  <property name="src" value="src"/>
+
+  <!-- Build directory -->
+  <property name="build" value="classes"/>
+  <property name="doc" value="doc" />
+  <property name="debug" value="off"/>
+
+  <!-- Packages for full javadoc generation -->
+  <property name="fullpackages" value="gmi.*"/>
+
+  <!-- Set environment variables -->
+  <property environment="env"/>
+
+  <!-- Check if the spread library is found -->
+  <available file="${env.SPREAD_HOME}" type="dir"
+     property="env.SPREAD_HOME.found"/>
+  <fail message="No SPREAD_HOME environment variable.">
+    <condition>
+      <isfalse value="${env.SPREAD_HOME.found}"/>
+    </condition>
+  </fail>
+  <fail message="Spread Java library not found.">
+    <condition>
+      <resourcecount count="0">
+        <fileset dir="${env.SPREAD_HOME}/lib" includes="*.jar"/>
+      </resourcecount>
+    </condition>
+  </fail>
+
+  <!-- ClassPath to compile JaSoS and its applications -->
+  <path id="compile.path">
+    <fileset dir="${env.SPREAD_HOME}/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <!-- ClassPath to run the JaSoS applications -->
+  <property name="run" value="${build}"/>
+  <path id="run.path">
+    <pathelement location="${run}"/>
+    <path refid="compile.path"/>
+  </path>
+
+  <!-- **************************************************************** -->
+  <!-- Compile section / Development                                    -->
+  <!-- **************************************************************** -->
+
+  <!-- Create a time stamp -->
+  <target name="init">
+    <tstamp/>
+  </target>
+
+  <!-- Compile all modified files -->
+  <target name="build"
+          description="Building JaSoS and its applications.">
+    <mkdir dir="${build}"/>
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" debug="${debug}"
+           includeAntRuntime="no" classpathref="compile.path">
+      <compilerarg value="-Xlint:unchecked"/>
+    </javac>
+  </target>
+
+  <!-- Recompile all files, modified or not -->
+  <target name="all" depends="clean, init, build"
+          description="Rebuild Spread GMI package.">
+  </target>
+
+  <!-- Clean out all files from the previous build -->
+  <target name="clean"
+          description="Delete all previously compiled classes.">
+    <!-- Delete the ${build} directory trees -->
+    <delete dir="${build}"/>
+  </target>
+
+  <!-- **************************************************************** -->
+  <!-- JavaDoc                                                          -->
+  <!-- **************************************************************** -->
+
+  <!-- Generate javadoc for JaSoS -->
+  <target name="doc" depends="cleandoc"
+          description="Generate java documentation for JaSoS.">
+    <!-- Create the doc directory in which to store javadoc documentation -->
+    <mkdir dir="${doc}"/>
+    <!-- Generate javadoc -->
+    <javadoc
+        classpathref="compile.path"
+        sourcepath="${src}"
+        destdir="${doc}"
+        packagenames="${fullpackages}"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="JaSoS API">
+      <doctitle><![CDATA[<h1>The JaSoS dependable computing toolkit</h1>]]></doctitle>
+      <tag name="todo." scope="all" description="To do:"/>      
+      <link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="/tmp"/>
+    </javadoc>
+  </target>
+
+  <!-- Clean out all files related to the javadoc -->
+  <target name="cleandoc">
+    <!-- Delete the ${doc} directory tree -->
+    <delete dir="${doc}"/>
+  </target>
+
+  <!-- **************************************************************** -->
+  <!-- Run section for JaSoS examples                                   -->
+  <!-- **************************************************************** -->
+
+  <target name="interactive-uid" unless="uid">
+    <input message="Enter a unique id for this process:" addproperty="uid" />
+  </target>
+
+	<!-- ***  Start the HelloServer  ***-->
+  <target name="helloserver" depends="build,interactive-uid"
+          description="Run the JaSoS hello server application (Sprad daemon must be running)">
+    <java classname="hello.HelloServer" fork="true" classpathref="run.path">
+      <arg line="-c ${uid} -p ${port}"/>
+    </java>
+  </target>
+
+  <!-- ***  Start the HelloClient  ***-->
+  <target name="helloclient" depends="build,interactive-uid"
+          description="Run the JaSoS hello client application (Sprad daemon must be running)">
+    <java classname="hello.HelloClient" fork="true" classpathref="run.path">
+      <arg line="-c ${uid} -p ${port}"/>
+    </java>
+  </target>
+
+  <!-- ***  Start the AddressServer  ***-->
+  <target name="addrserver" depends="build,interactive-uid"
+          description="Run the address server application (Spread daemon must be running)">
+    <java classname="allocator.AddressServer" fork="true" classpathref="run.path">
+      <arg line="-c ${uid} -p ${port}"/>
+    </java>
+  </target>
+
+  <!-- ***  Start the AddressClient  ***-->
+  <target name="addrclient" depends="build,interactive-uid"
+          description="Run the address client application (Spread daemon must be running)">
+    <java classname="allocator.AddressClient" fork="true" classpathref="run.path">
+      <arg line="-c ${uid} -p ${port}" />
+    </java>
+  </target>
+
+</project>

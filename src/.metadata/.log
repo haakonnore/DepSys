@@ -1,0 +1,44 @@
+!SESSION 2012-03-08 10:29:29.871 -----------------------------------------------
+eclipse.buildId=M20100211-1343
+java.version=1.6.0_20
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2012-03-08 10:30:55.677
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Core Exception [code 77] Invalid project description.
+	at org.eclipse.jdt.internal.core.BatchOperation.executeOperation(BatchOperation.java:50)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:728)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:1800)
+	at org.eclipse.jdt.core.JavaCore.run(JavaCore.java:4694)
+	at org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter.run(WorkbenchRunnableAdapter.java:106)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+Contains: OK
+Contains: /home/haakonlo/TTM4120/ttm4120_lab/sourcecode overlaps the workspace location: /home/haakonlo/TTM4120/ttm4120_lab/sourcecode/src
+Caused by: org.eclipse.core.internal.resources.ResourceException: Invalid project description.
+	at org.eclipse.core.internal.resources.Project.checkDescription(Project.java:141)
+	at org.eclipse.core.internal.resources.Project.assertCreateRequirements(Project.java:33)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:252)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:234)
+	at org.eclipse.jdt.internal.ui.wizards.buildpaths.BuildPathsBlock.createProject(BuildPathsBlock.java:697)
+	at org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage.createProject(JavaCapabilityConfigurationPage.java:251)
+	at org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageTwo.updateProject(NewJavaProjectWizardPageTwo.java:231)
+	at org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageTwo.performFinish(NewJavaProjectWizardPageTwo.java:465)
+	at org.eclipse.jdt.internal.ui.wizards.JavaProjectWizard.finishPage(JavaProjectWizard.java:80)
+	at org.eclipse.jdt.internal.ui.wizards.NewElementWizard$2.run(NewElementWizard.java:116)
+	at org.eclipse.jdt.internal.core.BatchOperation.executeOperation(BatchOperation.java:39)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:728)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:1800)
+	at org.eclipse.jdt.core.JavaCore.run(JavaCore.java:4694)
+	at org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter.run(WorkbenchRunnableAdapter.java:106)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+Contains: OK
+Contains: /home/haakonlo/TTM4120/ttm4120_lab/sourcecode overlaps the workspace location: /home/haakonlo/TTM4120/ttm4120_lab/sourcecode/src
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2012-03-08 10:30:55.678
+!MESSAGE Invalid project description.
+!SUBENTRY 2 org.eclipse.core.runtime 0 0 2012-03-08 10:30:55.678
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.core.resources 4 77 2012-03-08 10:30:55.678
+!MESSAGE /home/haakonlo/TTM4120/ttm4120_lab/sourcecode overlaps the workspace location: /home/haakonlo/TTM4120/ttm4120_lab/sourcecode/src
